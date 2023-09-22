@@ -28,6 +28,7 @@ export class MongodbDataSource
   constructor(
     @inject('datasources.config.mongodb', {optional: true})
     dsConfig: object = config,
+    {},
   ) {
     super(dsConfig);
   }
