@@ -39,6 +39,15 @@ export class RolePermissions extends Entity {
   })
   download: boolean;
 
+  @property({
+    type: 'string',
+  })
+  roleId?: string;
+
+  @property({
+    type: 'string',
+  })
+  permissionsId?: string;
 
   constructor(data?: Partial<RolePermissions>) {
     super(data);

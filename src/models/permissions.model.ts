@@ -1,4 +1,6 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Role} from './role.model';
+import {RolePermissions} from './role-permissions.model';
 
 @model()
 export class Permissions extends Entity {
@@ -20,6 +22,9 @@ export class Permissions extends Entity {
     required: true,
   })
   comentary: string;
+
+  @hasMany(() => Role, {through: {model: () => RolePermissions}})
+  roles: Role[];
 
   constructor(data?: Partial<Permissions>) {
     super(data);
