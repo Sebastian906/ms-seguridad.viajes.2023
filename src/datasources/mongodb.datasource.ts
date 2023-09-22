@@ -4,7 +4,7 @@ import {juggler} from '@loopback/repository';
 const config = {
   name: 'mongodb',
   connector: 'mongodb',
-  url: 'mongodb+srv://<username>:<password>@cluster0.jzqbrwr.mongodb.net/seguridad_viajes?retryWrites=true&w=majority',
+  url: 'mongodb+srv://user_mongo_viajes:admin123@cluster0.jzqbrwr.mongodb.net/seguridad_viajes?retryWrites=true&w=majority',
   host: 'localhost',
   port: 27017,
   user: '',
@@ -28,7 +28,6 @@ export class MongodbDataSource
   constructor(
     @inject('datasources.config.mongodb', {optional: true})
     dsConfig: object = config,
-    {},
   ) {
     super(dsConfig);
   }
