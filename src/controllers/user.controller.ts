@@ -11,6 +11,7 @@ import {
   del,
   get,
   getModelSchemaRef,
+  HttpErrors,
   param,
   patch,
   post,
@@ -18,8 +19,8 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {User} from '../models';
-import {UserRepository} from '../repositories';
+import {Credentials, Login, User} from '../models';
+import {LoginRepository, UserRepository} from '../repositories';
 import {SeguridadUserService} from '../services';
 
 export class UserController {
@@ -27,7 +28,9 @@ export class UserController {
     @repository(UserRepository)
     public userRepository : UserRepository,
     @service(SeguridadUserService)
-    public servicioSeguridad: SeguridadUserService
+    public servicioSeguridad: SeguridadUserService,
+    @repository(LoginRepository)
+    public repositoryLogin: LoginRepository
   ) {}
 
   @post('/user')
@@ -49,7 +52,7 @@ export class UserController {
     user: Omit<User, '_id'>,
   ): Promise<User> {
     // crear la clave
-    let clave = this.servicioSeguridad.crearClave();
+    let clave = this.servicioSeguridad.crearTextoAleatorio(10);
     console.log(clave);
     // cifrar la clave
     let claveCifrada = this.servicioSeguridad.cifrarTexto(clave);
@@ -159,4 +162,42 @@ export class UserController {
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
   }
+
+  /**
+   * Métodos personalizados para la API
+   */
+
+  @post('/identify-user')
+  @response(200, {
+    description: "Identifies user by email and password",
+    content: {'application/json': {schema: getModelSchemaRef(Credentials)}}
+  })
+  async indetifyUser(
+    @requestBody(
+      {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Credentials)
+          }
+        }
+      }
+    )
+    credentials: Credentials
+  ): Promise<object> {
+    let user = await this.servicioSeguridad.identifyUser(credentials);
+    if (user) {
+      let code2fa = this.servicioSeguridad.crearTextoAleatorio(5);
+      let login:Login = new Login();
+      login.userId = user._id!;
+      login.code2fa = code2fa;
+      login.codeState = false;
+      login.token = '';
+      login.tokenState = false;
+      this.repositoryLogin.create(login);
+      // notificar al usuario via correo o sms
+      return user;
+    }
+    return new HttpErrors[401]("Credenciales incorrectas.");
+  }
+
 }
