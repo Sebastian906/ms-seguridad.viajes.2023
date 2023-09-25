@@ -19,7 +19,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Credentials, Login, User} from '../models';
+import {Credentials, FactorAuthenticationCode, Login, User} from '../models';
 import {LoginRepository, UserRepository} from '../repositories';
 import {SeguridadUserService} from '../services';
 
@@ -170,7 +170,7 @@ export class UserController {
   @post('/identify-user')
   @response(200, {
     description: "Identifies user by email and password",
-    content: {'application/json': {schema: getModelSchemaRef(Credentials)}}
+    content: {'application/json': {schema: getModelSchemaRef(User)}}
   })
   async indetifyUser(
     @requestBody(
@@ -200,4 +200,33 @@ export class UserController {
     return new HttpErrors[401]("Credenciales incorrectas.");
   }
 
+  @post('/Verify-2fa')
+  @response(200, {
+    description: "Identifies user by email and password",
+  })
+  async VerifyCode2fa(
+    @requestBody(
+      {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(FactorAuthenticationCode)
+          }
+        }
+      }
+    )
+    credentials: FactorAuthenticationCode
+  ): Promise<object> {
+    let user = await this.servicioSeguridad.validateCode2fa(credentials);
+    if (user){
+      let token = this.servicioSeguridad.createToken(user);
+    if(user){
+      user.password = "";
+      return {
+        user: user,
+        token:token
+      };
+    }
+    }
+    return new HttpErrors[401]("Codigo de 2fa invalido para el usuario definido.");
+  }
 }
