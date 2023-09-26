@@ -187,6 +187,7 @@ export class UserController {
     let user = await this.servicioSeguridad.identifyUser(credentials);
     if (user) {
       let code2fa = this.servicioSeguridad.crearTextoAleatorio(5);
+      console.log(code2fa);
       let login:Login = new Login();
       login.userId = user._id!;
       login.code2fa = code2fa;
@@ -194,6 +195,7 @@ export class UserController {
       login.token = '';
       login.tokenState = false;
       this.repositoryLogin.create(login);
+      user.password = "";
       // notificar al usuario via correo o sms
       return user;
     }
@@ -221,6 +223,18 @@ export class UserController {
       let token = this.servicioSeguridad.createToken(user);
     if(user){
       user.password = "";
+      try{
+        this.userRepository.logins(user._id).patch(
+        {
+          codeState: true,
+          token: token,
+        },{
+          codeState: false
+        });
+    }catch{
+      console.log("No se ha almacenado el cambio del estado de token en la base de datos.");
+      
+    }
       return {
         user: user,
         token:token
