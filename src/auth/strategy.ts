@@ -18,7 +18,7 @@ export class AuthStrategy implements AuthenticationStrategy {
     @service(SeguridadUserService)
     private serviceSeguridad: SeguridadUserService,
     @inject(AuthenticationBindings.METADATA)
-    private metadata: AuthenticationMetadata,
+    private metadata: AuthenticationMetadata[],
     @repository(RolePermissionsRepository)
     private repositoryRolePermissions: RolePermissionsRepository,
   ) {}
@@ -33,26 +33,46 @@ export class AuthStrategy implements AuthenticationStrategy {
     let token = parseBearerToken(request);
     if (token) {
       let idRole = this.serviceSeguridad.getRoleFromToken(token);
-      let idMenu: string = this.metadata.options![0];
-      // NO esta implementado las acciones del usuario
-      //let accion: string = this.metadata.options![1];
+      let idPermissions: string = this.metadata[0].options![0];
+      let accion: string = this.metadata[0].options![1];
+      console.log(this.metadata);
       let existsPermission = await this.repositoryRolePermissions.findOne({
         where: {
           roleId: idRole,
-          menuId: idMenu,
+          permissionsId: idPermissions,
         },
       });
+      let continuar: boolean = false;
       if (existsPermission) {
-        // no implementado
-        //switch ("accion") {
+        switch (accion) {
+          case "get":
+            continuar = existsPermission.get;
+            break;
+          case "put":
+            continuar = existsPermission.put;
+            break;
+          case 'post':
+            continuar = existsPermission.post;
+            break;
+          case "delete":
+            continuar = existsPermission.delete;
+            break;
+
+          default:
+            throw new HttpErrors.Unauthorized('No es posible ejecutar la acción porque no existe.');
+          }
+        if (continuar) {
+          let perfil: UserProfile = Object.assign({
+            permitido: "OK"
+          });
+          return perfil;
+        } else {
+          return undefined;
+        }
       } else {
-        throw new HttpErrors[401](
-          'No tiene permisos para realizar esta acción',
-        );
+      throw new HttpErrors[401]('No es posible ejecutar la accion por falta de permisos.');
       }
     }
-    throw new HttpErrors[401](
-      'No es posible ejecutar la accion por falta de un token',
-    );
+    throw new HttpErrors[401]('No es posible ejecutar la acción por falta de un token.')
   }
 }

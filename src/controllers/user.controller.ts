@@ -20,6 +20,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {ConfigurationSecurity} from '../config/seguridad.config';
 import {Credentials, FactorAuthenticationCode, Login, User} from '../models';
 import {LoginRepository, UserRepository} from '../repositories';
 import {SeguridadUserService} from '../services';
@@ -72,7 +73,9 @@ export class UserController {
     return this.userRepository.count(where);
   }
 
-  @authenticate('auth')
+  @authenticate({
+    strategy: 'auth',
+    options: [ConfigurationSecurity.menuUserId, ConfigurationSecurity.listarAccion]})
   @get('/user')
   @response(200, {
     description: 'Array of User model instances',
