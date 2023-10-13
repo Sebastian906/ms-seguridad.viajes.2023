@@ -219,7 +219,8 @@ export class UserController {
     })
     datos: PermissionsRoleMenu,
   ): Promise<UserProfile | undefined> {
-    return this.serviceAuth.VerifyUserPermissionByRole(datos.idRole, datos.idPermissions, datos.accion);
+    let idRole = this.servicioSeguridad.getRoleFromToken(datos.token);
+    return this.serviceAuth.VerifyUserPermissionByRole(idRole, datos.idPermissions, datos.accion);
   }
 
   @post('/Verify-2fa')
