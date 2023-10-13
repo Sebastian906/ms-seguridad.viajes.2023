@@ -20,10 +20,11 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {UserProfile} from '@loopback/security';
 import {ConfigurationSecurity} from '../config/seguridad.config';
-import {Credentials, FactorAuthenticationCode, Login, User} from '../models';
+import {Credentials, FactorAuthenticationCode, Login, PermissionsRoleMenu, User} from '../models';
 import {LoginRepository, UserRepository} from '../repositories';
-import {SeguridadUserService} from '../services';
+import {AuthService, SeguridadUserService} from '../services';
 
 export class UserController {
   constructor(
@@ -33,6 +34,8 @@ export class UserController {
     public servicioSeguridad: SeguridadUserService,
     @repository(LoginRepository)
     public repositoryLogin: LoginRepository,
+    @service(AuthService)
+    private serviceAuth: AuthService
   ) {}
 
   @post('/user')
@@ -199,6 +202,24 @@ export class UserController {
       return user;
     }
     return new HttpErrors[401]('Credenciales incorrectas.');
+  }
+
+  @post('/validate-permissions')
+  @response(200, {
+    description: 'Validates permissions of user for business logic',
+    content: {'application/json': {schema: getModelSchemaRef(PermissionsRoleMenu)}},
+  })
+  async ValidatePermissionsUser(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(PermissionsRoleMenu),
+        },
+      },
+    })
+    datos: PermissionsRoleMenu,
+  ): Promise<UserProfile | undefined> {
+    return this.serviceAuth.VerifyUserPermissionByRole(datos.idRole, datos.idPermissions, datos.accion);
   }
 
   @post('/Verify-2fa')
