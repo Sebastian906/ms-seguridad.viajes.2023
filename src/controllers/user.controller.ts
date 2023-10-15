@@ -21,10 +21,11 @@ import {
   response,
 } from '@loopback/rest';
 import {UserProfile} from '@loopback/security';
+import {ConfigurationNotifications} from '../config/notificaciones.config';
 import {ConfigurationSecurity} from '../config/seguridad.config';
 import {Credentials, FactorAuthenticationCode, Login, PermissionsRoleMenu, User} from '../models';
 import {LoginRepository, UserRepository} from '../repositories';
-import {AuthService, SeguridadUserService} from '../services';
+import {AuthService, NotificacionesService, SeguridadUserService} from '../services';
 
 export class UserController {
   constructor(
@@ -35,7 +36,9 @@ export class UserController {
     @repository(LoginRepository)
     public repositoryLogin: LoginRepository,
     @service(AuthService)
-    private serviceAuth: AuthService
+    private serviceAuth: AuthService,
+    @service(NotificacionesService)
+    public serviceNotifications: NotificacionesService
   ) {}
 
   @post('/user')
@@ -199,6 +202,14 @@ export class UserController {
       this.repositoryLogin.create(login);
       user.password = '';
       // notificar al usuario via correo o sms
+      let datos = {
+        correoDestino:user.email,
+        nombreDestino:user.name + " " + user.secondName,
+        contenidoCorreo:`Su código de segundo factor de autenticación es: ${code2fa}`,
+        asuntoDestino: ConfigurationNotifications.asunto2fa,
+      };
+      let url = ConfigurationNotifications.urlNotificaciones2fa;
+      this.serviceNotifications.EnviarCorreoElectronico(datos, url);
       return user;
     }
     return new HttpErrors[401]('Credenciales incorrectas.');
