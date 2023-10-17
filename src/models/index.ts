@@ -6,3 +6,4 @@ export * from './user.model';
 export * from './credentials.model';
 export * from './factor-authentication-code.model';
 export * from './permissions-role-menu.model';
+export * from './credenciales-recuperar-clave.model';

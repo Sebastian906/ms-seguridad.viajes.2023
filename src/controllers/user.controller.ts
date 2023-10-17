@@ -23,9 +23,20 @@ import {
 import {UserProfile} from '@loopback/security';
 import {ConfigurationNotifications} from '../config/notificaciones.config';
 import {ConfigurationSecurity} from '../config/seguridad.config';
-import {Credentials, FactorAuthenticationCode, Login, PermissionsRoleMenu, User} from '../models';
+import {
+  CredencialesRecuperarClave,
+  Credentials,
+  FactorAuthenticationCode,
+  Login,
+  PermissionsRoleMenu,
+  User,
+} from '../models';
 import {LoginRepository, UserRepository} from '../repositories';
-import {AuthService, NotificacionesService, SeguridadUserService} from '../services';
+import {
+  AuthService,
+  NotificacionesService,
+  SeguridadUserService,
+} from '../services';
 
 export class UserController {
   constructor(
@@ -38,7 +49,7 @@ export class UserController {
     @service(AuthService)
     private serviceAuth: AuthService,
     @service(NotificacionesService)
-    public serviceNotifications: NotificacionesService
+    public serviceNotifications: NotificacionesService,
   ) {}
 
   @post('/user')
@@ -81,7 +92,11 @@ export class UserController {
 
   @authenticate({
     strategy: 'auth',
-    options: [ConfigurationSecurity.menuUserId, ConfigurationSecurity.listarAccion]})
+    options: [
+      ConfigurationSecurity.menuUserId,
+      ConfigurationSecurity.listarAccion,
+    ],
+  })
   @get('/user')
   @response(200, {
     description: 'Array of User model instances',
@@ -174,6 +189,45 @@ export class UserController {
    * Métodos personalizados para la API
    */
 
+  @post('/recuperar-clave')
+  @response(200, {
+    description: 'Identifies user by email and password',
+    content: {'application/json': {schema: getModelSchemaRef(User)}},
+  })
+  async RecuperarClaveUsuario(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(CredencialesRecuperarClave),
+        },
+      },
+    })
+    credentials: CredencialesRecuperarClave,
+  ): Promise<object> {
+    let user = await this.userRepository.findOne({
+      where: {
+        email: credentials.correo,
+      },
+    });
+    if (user) {
+      let nuevaClave = this.servicioSeguridad.crearTextoAleatorio(5);
+      console.log(nuevaClave);
+      let claveCifrada = this.servicioSeguridad.cifrarTexto(nuevaClave);
+      user.password = claveCifrada;
+      this.userRepository.updateById(user._id, user);
+
+      // notificar al usuario via correo o sms
+      let datos = {
+        numeroDestino: user.email,
+        contenidoMensaje: `hola ${user.name} Su nueva clave es: ${nuevaClave}`,
+      };
+      let url = ConfigurationNotifications.urlNotificacionesSMS;
+      this.serviceNotifications.EnviarNotificacion(datos, url);
+      return user;
+    }
+    return new HttpErrors[401]('Credenciales incorrectas.');
+  }
+
   @post('/identify-user')
   @response(200, {
     description: 'Identifies user by email and password',
@@ -203,13 +257,13 @@ export class UserController {
       user.password = '';
       // notificar al usuario via correo o sms
       let datos = {
-        correoDestino:user.email,
-        nombreDestino:user.name + " " + user.secondName,
-        contenidoCorreo:`Su código de segundo factor de autenticación es: ${code2fa}`,
+        correoDestino: user.email,
+        nombreDestino: user.name + ' ' + user.secondName,
+        contenidoCorreo: `Su código de segundo factor de autenticación es: ${code2fa}`,
         asuntoDestino: ConfigurationNotifications.asunto2fa,
       };
       let url = ConfigurationNotifications.urlNotificaciones2fa;
-      this.serviceNotifications.EnviarCorreoElectronico(datos, url);
+      this.serviceNotifications.EnviarNotificacion(datos, url);
       return user;
     }
     return new HttpErrors[401]('Credenciales incorrectas.');
@@ -218,7 +272,9 @@ export class UserController {
   @post('/validate-permissions')
   @response(200, {
     description: 'Validates permissions of user for business logic',
-    content: {'application/json': {schema: getModelSchemaRef(PermissionsRoleMenu)}},
+    content: {
+      'application/json': {schema: getModelSchemaRef(PermissionsRoleMenu)},
+    },
   })
   async ValidatePermissionsUser(
     @requestBody({
@@ -231,7 +287,11 @@ export class UserController {
     datos: PermissionsRoleMenu,
   ): Promise<UserProfile | undefined> {
     let idRole = this.servicioSeguridad.getRoleFromToken(datos.token);
-    return this.serviceAuth.VerifyUserPermissionByRole(idRole, datos.idPermissions, datos.accion);
+    return this.serviceAuth.VerifyUserPermissionByRole(
+      idRole,
+      datos.idPermissions,
+      datos.accion,
+    );
   }
 
   @post('/Verify-2fa')
