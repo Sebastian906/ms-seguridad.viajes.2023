@@ -4,4 +4,6 @@ export namespace ConfigurationNotifications {
     'http://localhost:5018/Notificaciones/enviar-correo-2fa';
   export const urlNotificacionesSMS: string =
     'http://localhost:5018/Notificaciones/enviar-sms';
+  export const urlCorreoRecuperacionClave: string =
+    'http://localhost:5018/Notificaciones/correo-recuperacion-clave';
 }

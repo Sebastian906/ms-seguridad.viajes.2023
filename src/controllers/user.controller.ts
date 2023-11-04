@@ -191,7 +191,7 @@ export class UserController {
 
   @post('/recuperar-clave')
   @response(200, {
-    description: 'Identifies user by email and password',
+    description: 'Sends user password with the email provided',
     content: {'application/json': {schema: getModelSchemaRef(User)}},
   })
   async RecuperarClaveUsuario(
@@ -221,7 +221,7 @@ export class UserController {
         numeroDestino: user.email,
         contenidoMensaje: `hola ${user.name} Su nueva clave es: ${nuevaClave}`,
       };
-      let url = ConfigurationNotifications.urlNotificacionesSMS;
+      let url = ConfigurationNotifications.urlCorreoRecuperacionClave;
       this.serviceNotifications.EnviarNotificacion(datos, url);
       return user;
     }
