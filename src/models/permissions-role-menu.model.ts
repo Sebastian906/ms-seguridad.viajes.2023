@@ -20,7 +20,6 @@ export class PermissionsRoleMenu extends Model {
   })
   accion: string;
 
-
   constructor(data?: Partial<PermissionsRoleMenu>) {
     super(data);
   }
@@ -30,4 +29,5 @@ export interface PermissionsRoleMenuRelations {
   // describe navigational properties here
 }
 
-export type PermissionsRoleMenuWithRelations = PermissionsRoleMenu & PermissionsRoleMenuRelations;
+export type PermissionsRoleMenuWithRelations = PermissionsRoleMenu &
+  PermissionsRoleMenuRelations;

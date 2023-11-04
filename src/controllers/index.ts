@@ -9,3 +9,5 @@ export * from './role.controller';
 export * from './user-login.controller';
 export * from './user-role.controller';
 export * from './user.controller';
+export * from './role-permissions-role.controller';
+export * from './role-permissions-permissions.controller';
