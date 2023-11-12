@@ -11,3 +11,4 @@ export * from './user-role.controller';
 export * from './user.controller';
 export * from './role-permissions-role.controller';
 export * from './role-permissions-permissions.controller';
+export * from './permissions-role-menu.controller';
