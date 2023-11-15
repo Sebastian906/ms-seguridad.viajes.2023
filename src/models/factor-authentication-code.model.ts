@@ -14,7 +14,6 @@ export class FactorAuthenticationCode extends Model {
   })
   code2fa: string;
 
-
   constructor(data?: Partial<FactorAuthenticationCode>) {
     super(data);
   }
@@ -24,4 +23,5 @@ export interface FactorAuthenticationCodeRelations {
   // describe navigational properties here
 }
 
-export type FactorAuthenticationCodeWithRelations = FactorAuthenticationCode & FactorAuthenticationCodeRelations;
+export type FactorAuthenticationCodeWithRelations = FactorAuthenticationCode &
+  FactorAuthenticationCodeRelations;

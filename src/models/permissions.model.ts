@@ -1,8 +1,8 @@
-import {Model, model, property, belongsTo} from '@loopback/repository';
+import {Entity, belongsTo, model, property} from '@loopback/repository';
 import {RolePermissions} from './role-permissions.model';
 
-@model({settings: {strict: false}})
-export class Permissions extends Model {
+@model()
+export class Permissions extends Entity {
   @property({
     type: 'string',
     id: true,

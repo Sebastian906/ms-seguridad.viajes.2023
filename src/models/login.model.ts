@@ -1,7 +1,8 @@
-import {Model, model, property} from '@loopback/repository';
+import {Entity, hasOne, model, property} from '@loopback/repository';
+import {User} from './user.model';
 
 @model({settings: {strict: false}})
-export class Login extends Model {
+export class Login extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -33,6 +34,14 @@ export class Login extends Model {
   })
   tokenState: boolean;
 
+  @hasOne(() => User)
+  private _user: User;
+  public get user(): User {
+    return this._user;
+  }
+  public set user(value: User) {
+    this._user = value;
+  }
   // Define well-known properties here
 
   // Indexer property to allow additional data

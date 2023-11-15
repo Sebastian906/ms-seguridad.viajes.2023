@@ -1,8 +1,9 @@
-import {Model, model, property, belongsTo} from '@loopback/repository';
+import {Entity, belongsTo, hasOne, model, property} from '@loopback/repository';
+import {Permissions} from './permissions.model';
 import {Role} from './role.model';
 
-@model({settings: {strict: false}})
-export class RolePermissions extends Model {
+@model()
+export class RolePermissions extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -42,6 +43,9 @@ export class RolePermissions extends Model {
 
   @belongsTo(() => Role)
   roleId: string;
+
+  @hasOne(() => Permissions)
+  permissions: Permissions;
   // Define well-known properties here
 
   // Indexer property to allow additional data
@@ -57,4 +61,5 @@ export interface RolePermissionsRelations {
   // describe navigational properties here
 }
 
-export type RolePermissionsWithRelations = RolePermissions & RolePermissionsRelations;
+export type RolePermissionsWithRelations = RolePermissions &
+  RolePermissionsRelations;
