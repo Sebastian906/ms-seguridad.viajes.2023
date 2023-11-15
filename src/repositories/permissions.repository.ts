@@ -1,9 +1,8 @@
 import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory} from '@loopback/repository';
+import {DefaultCrudRepository, repository, BelongsToAccessor} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Permissions, PermissionsRelations, Role, RolePermissions} from '../models';
+import {Permissions, PermissionsRelations, RolePermissions} from '../models';
 import {RolePermissionsRepository} from './role-permissions.repository';
-import {RoleRepository} from './role.repository';
 
 export class PermissionsRepository extends DefaultCrudRepository<
   Permissions,
@@ -11,16 +10,13 @@ export class PermissionsRepository extends DefaultCrudRepository<
   PermissionsRelations
 > {
 
-  public readonly roles: HasManyThroughRepositoryFactory<Role, typeof Role.prototype._id,
-          RolePermissions,
-          typeof Permissions.prototype._id
-        >;
+  public readonly rolePermissions: BelongsToAccessor<RolePermissions, typeof Permissions.prototype._id>;
 
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RolePermissionsRepository') protected rolePermissionsRepositoryGetter: Getter<RolePermissionsRepository>, @repository.getter('RoleRepository') protected roleRepositoryGetter: Getter<RoleRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RolePermissionsRepository') protected rolePermissionsRepositoryGetter: Getter<RolePermissionsRepository>,
   ) {
     super(Permissions, dataSource);
-    this.roles = this.createHasManyThroughRepositoryFactoryFor('roles', roleRepositoryGetter, rolePermissionsRepositoryGetter,);
-    this.registerInclusionResolver('roles', this.roles.inclusionResolver);
+    this.rolePermissions = this.createBelongsToAccessorFor('rolePermissions', rolePermissionsRepositoryGetter,);
+    this.registerInclusionResolver('rolePermissions', this.rolePermissions.inclusionResolver);
   }
 }

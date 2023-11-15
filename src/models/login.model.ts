@@ -1,8 +1,7 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {User} from './user.model';
+import {Model, model, property} from '@loopback/repository';
 
-@model()
-export class Login extends Entity {
+@model({settings: {strict: false}})
+export class Login extends Model {
   @property({
     type: 'string',
     id: true,
@@ -24,9 +23,9 @@ export class Login extends Entity {
 
   @property({
     type: 'string',
-    
+    required: true,
   })
-  token?: string;
+  token: string;
 
   @property({
     type: 'boolean',
@@ -34,8 +33,11 @@ export class Login extends Entity {
   })
   tokenState: boolean;
 
-  @belongsTo(() => User)
-  userId: string;
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
 
   constructor(data?: Partial<Login>) {
     super(data);

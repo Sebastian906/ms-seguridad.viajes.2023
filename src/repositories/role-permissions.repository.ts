@@ -1,9 +1,8 @@
 import {inject, Getter} from '@loopback/core';
 import {DefaultCrudRepository, repository, BelongsToAccessor} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {RolePermissions, RolePermissionsRelations, Role, Permissions} from '../models';
+import {RolePermissions, RolePermissionsRelations, Role} from '../models';
 import {RoleRepository} from './role.repository';
-import {PermissionsRepository} from './permissions.repository';
 
 export class RolePermissionsRepository extends DefaultCrudRepository<
   RolePermissions,
@@ -13,14 +12,10 @@ export class RolePermissionsRepository extends DefaultCrudRepository<
 
   public readonly role: BelongsToAccessor<Role, typeof RolePermissions.prototype._id>;
 
-  public readonly permissions: BelongsToAccessor<Permissions, typeof RolePermissions.prototype._id>;
-
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RoleRepository') protected roleRepositoryGetter: Getter<RoleRepository>, @repository.getter('PermissionsRepository') protected permissionsRepositoryGetter: Getter<PermissionsRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RoleRepository') protected roleRepositoryGetter: Getter<RoleRepository>,
   ) {
     super(RolePermissions, dataSource);
-    this.permissions = this.createBelongsToAccessorFor('permissions', permissionsRepositoryGetter,);
-    this.registerInclusionResolver('permissions', this.permissions.inclusionResolver);
     this.role = this.createBelongsToAccessorFor('role', roleRepositoryGetter,);
     this.registerInclusionResolver('role', this.role.inclusionResolver);
   }

@@ -1,9 +1,8 @@
-import {Entity, belongsTo, hasMany, model, property} from '@loopback/repository';
+import {Model, model, property, belongsTo} from '@loopback/repository';
 import {Login} from './login.model';
-import {Role} from './role.model';
 
-@model()
-export class User extends Entity {
+@model({settings: {strict: false}})
+export class User extends Model {
   @property({
     type: 'string',
     id: true,
@@ -51,29 +50,27 @@ export class User extends Entity {
     type: 'string',
     required: true,
   })
-  email: string;
-
-  @property({
-    type: 'string',
-  })
-  password?: string;
-
-  @property({
-    type: 'string',
-  })
-  secondName?: string;
+  password: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  secondLastname: string;
+  secondName: string;
 
-  @hasMany(() => Login)
-  logins: Login[];
+  @property({
+    type: 'string',
+    required: true,
+  })
+  secondLastName: string;
 
-  @belongsTo(() => Role)
-  roleId: string;
+  @belongsTo(() => Login)
+  loginId: string;
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
 
   constructor(data?: Partial<User>) {
     super(data);
