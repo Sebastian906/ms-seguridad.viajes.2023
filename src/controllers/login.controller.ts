@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,7 +23,7 @@ import {LoginRepository} from '../repositories';
 export class LoginController {
   constructor(
     @repository(LoginRepository)
-    public loginRepository : LoginRepository,
+    public loginRepository: LoginRepository,
   ) {}
 
   @post('/login')
@@ -52,9 +52,7 @@ export class LoginController {
     description: 'Login model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Login) where?: Where<Login>,
-  ): Promise<Count> {
+  async count(@param.where(Login) where?: Where<Login>): Promise<Count> {
     return this.loginRepository.count(where);
   }
 
@@ -70,9 +68,7 @@ export class LoginController {
       },
     },
   })
-  async find(
-    @param.filter(Login) filter?: Filter<Login>,
-  ): Promise<Login[]> {
+  async find(@param.filter(Login) filter?: Filter<Login>): Promise<Login[]> {
     return this.loginRepository.find(filter);
   }
 
@@ -106,7 +102,8 @@ export class LoginController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Login, {exclude: 'where'}) filter?: FilterExcludingWhere<Login>
+    @param.filter(Login, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Login>,
   ): Promise<Login> {
     return this.loginRepository.findById(id, filter);
   }

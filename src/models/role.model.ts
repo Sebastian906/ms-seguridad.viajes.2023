@@ -1,4 +1,4 @@
-import {Entity, hasOne, model, property} from '@loopback/repository';
+import {Entity, hasMany, model, property} from '@loopback/repository';
 import {RolePermissions} from './role-permissions.model';
 import {User} from './user.model';
 
@@ -23,10 +23,10 @@ export class Role extends Entity {
   })
   description: string;
 
-  @hasOne(() => User)
-  userId: string;
+  @hasMany(() => User)
+  users: User[];
 
-  @hasOne(() => RolePermissions)
+  @hasMany(() => RolePermissions)
   rolePermissions: RolePermissions;
   // Define well-known properties here
 

@@ -1,6 +1,4 @@
-import {Entity, belongsTo, hasOne, model, property} from '@loopback/repository';
-import {Permissions} from './permissions.model';
-import {Role} from './role.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class RolePermissions extends Entity {
@@ -41,16 +39,15 @@ export class RolePermissions extends Entity {
   })
   download: boolean;
 
-  @belongsTo(() => Role)
-  roleId: string;
+  @property({
+    type: 'string',
+  })
+  roleId?: string;
 
-  @hasOne(() => Permissions)
-  permissions: Permissions;
-  // Define well-known properties here
-
-  // Indexer property to allow additional data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [prop: string]: any;
+  @property({
+    type: 'string',
+  })
+  permissionsId?: string;
 
   constructor(data?: Partial<RolePermissions>) {
     super(data);
