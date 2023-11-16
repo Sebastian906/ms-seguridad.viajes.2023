@@ -1,4 +1,5 @@
 import {/* inject, */ BindingScope, injectable} from '@loopback/core';
+import {Agent} from 'https';
 const fetch = require('node-fetch');
 
 @injectable({scope: BindingScope.TRANSIENT})
@@ -10,6 +11,9 @@ export class NotificacionesService {
       method: 'post',
       body: JSON.stringify(datos),
       headers: {'Content-Type': 'application/json'},
+      agent: new Agent({
+        rejectUnauthorized: false,
+      }),
     });
   }
 }

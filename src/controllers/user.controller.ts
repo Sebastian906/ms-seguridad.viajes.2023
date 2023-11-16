@@ -247,6 +247,7 @@ export class UserController {
     if (user) {
       let code2fa = this.servicioSeguridad.crearTextoAleatorio(5);
       console.log(code2fa);
+
       let login: Login = new Login();
       login.userId = user._id!;
       login.code2fa = code2fa;
@@ -263,6 +264,7 @@ export class UserController {
         asuntoDestino: ConfigurationNotifications.asunto2fa,
       };
       let url = ConfigurationNotifications.urlNotificaciones2fa;
+      console.log(url);
       this.serviceNotifications.EnviarNotificacion(datos, url);
       return user;
     }

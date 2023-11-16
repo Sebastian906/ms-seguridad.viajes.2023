@@ -1,5 +1,5 @@
-import {ApplicationConfig, App} from './application';
-
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '';
+import {App, ApplicationConfig} from './application';
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
