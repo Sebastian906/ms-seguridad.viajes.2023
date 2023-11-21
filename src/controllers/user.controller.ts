@@ -52,6 +52,10 @@ export class UserController {
     public serviceNotifications: NotificacionesService,
   ) {}
 
+  @authenticate({
+    strategy : 'auth',
+    options : ["Usuario", "guardar"]
+  })
   @post('/user')
   @response(200, {
     description: 'User model instance',
@@ -77,6 +81,54 @@ export class UserController {
     let claveCifrada = this.servicioSeguridad.cifrarTexto(clave);
     // asignar la clave cifrada al usuario
     user.password = claveCifrada;
+    // enviar correo electrónico de notificación
+    return this.userRepository.create(user);
+  }
+
+
+  @post('/usuario-publico')
+  @response(200, {
+    description: 'User model instance',
+    content: {'application/json': {schema: getModelSchemaRef(User)}},
+  })
+  async creacionPublica(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(User, {
+            title: 'NewUser',
+            exclude: ['_id'],
+          }),
+        },
+      },
+    })
+    user: Omit<User, '_id'>,
+  ): Promise<User> {
+    // crear la clave
+    let clave = this.servicioSeguridad.crearTextoAleatorio(10);
+    console.log(clave);
+    // cifrar la clave
+    let claveCifrada = this.servicioSeguridad.cifrarTexto(clave);
+    // asignar la clave cifrada al usuario
+    user.password = claveCifrada;
+    // hash de validacion de correo
+    let hash = this.servicioSeguridad.crearTextoAleatorio(100);
+    user.hashValidacion = hash;
+    user.estadoValidacion = false;
+    user.aceptado = false;
+
+
+    //notificacion de hash en correo
+    let enlace =`<a href="${ConfigurationNotifications.urlvalidacionFronted}/${hash}" target='_blank'> Validar usuario </a>`;
+    let datos = {
+      correoDestino: user.email,
+      nombreDestino: user.name + ' ' + user.secondName,
+      contenidoCorreo:  `Por favor, valide su correo electrónico haciendo click en el siguiente enlace: ${enlace}`,
+      asuntoDestino: ConfigurationNotifications.asuntoVerificacionCorreo,
+    };
+    let url = ConfigurationNotifications.urlCorreoRecuperacionClave;
+    this.serviceNotifications.EnviarNotificacion(datos, url);
+
     // enviar correo electrónico de notificación
     return this.userRepository.create(user);
   }
@@ -217,9 +269,12 @@ export class UserController {
       this.userRepository.updateById(user._id, user);
 
       // notificar al usuario via correo o sms
+
       let datos = {
-        numeroDestino: user.email,
-        contenidoMensaje: `hola ${user.name} Su nueva clave es: ${nuevaClave}`,
+        correoDestino: user.email,
+        nombreDestino: user.name + ' ' + user.secondName,
+        contenidoCorreo:  `Su nueva clave es: ${nuevaClave}`,
+        asuntoDestino: ConfigurationNotifications.asuntoRecuperacionClave,
       };
       let url = ConfigurationNotifications.urlCorreoRecuperacionClave;
       this.serviceNotifications.EnviarNotificacion(datos, url);

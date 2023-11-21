@@ -61,6 +61,20 @@ export class User extends Entity {
   @property({
     type: 'string',
   })
+  hashValidacion?: string;
+
+  @property({
+    type: 'boolean',
+  })
+  estadoValidacion?: boolean;
+  @property({
+    type: 'boolean',
+  })
+  aceptado?: boolean;
+
+  @property({
+    type: 'string',
+  })
   secondName?: string;
 
   @property({
