@@ -82,6 +82,7 @@ export class UserController {
     let claveCifrada = this.servicioSeguridad.cifrarTexto(clave);
     // asignar la clave cifrada al usuario
     user.password = claveCifrada;
+    user.estadoValidacion = true;
     // enviar correo electrónico de notificación
     return this.userRepository.create(user);
   }

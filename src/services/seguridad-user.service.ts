@@ -48,6 +48,7 @@ export class SeguridadUserService {
       where: {
         email: credentials.email,
         password: credentials.password,
+        estadoValidacion: true
       },
     });
     return user as User;
