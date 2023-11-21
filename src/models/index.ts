@@ -7,3 +7,4 @@ export * from './credentials.model';
 export * from './factor-authentication-code.model';
 export * from './permissions-role-menu.model';
 export * from './credenciales-recuperar-clave.model';
+export * from './hash-validacion-usuario.model';

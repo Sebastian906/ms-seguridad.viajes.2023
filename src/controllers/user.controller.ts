@@ -27,6 +27,7 @@ import {
   CredencialesRecuperarClave,
   Credentials,
   FactorAuthenticationCode,
+  HashValidacionUsuario,
   Login,
   PermissionsRoleMenu,
   User,
@@ -129,8 +130,47 @@ export class UserController {
     let url = ConfigurationNotifications.urlCorreoRecuperacionClave;
     this.serviceNotifications.EnviarNotificacion(datos, url);
 
+
+    //notificacion de hash en correo
+    let datosCorreo = {
+      correoDestino: user.email,
+      nombreDestino: user.name + ' ' + user.secondName,
+      contenidoCorreo:  `Su clave asiganda es: ${clave}`,
+      asuntoDestino: ConfigurationNotifications.asuntoClaveAsignada,
+    };
+
+    this.serviceNotifications.EnviarNotificacion(datosCorreo, url);
+
     // enviar correo electrónico de notificación
     return this.userRepository.create(user);
+  }
+
+  @post('/validar-hash-usuario')
+  @response(200, {
+    description: 'Validar hash'
+  })
+  async ValidarHashUsuario(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(HashValidacionUsuario, {}),
+        },
+      },
+    })
+    hash: HashValidacionUsuario,
+  ): Promise<Boolean> {
+    let usuario = await this.userRepository.findOne({
+      where: {
+        hashValidacion: hash.codigoHash,
+        estadoValidacion: false,
+      },
+    });
+    if (usuario) {
+      usuario.estadoValidacion = true;
+      this.userRepository.updateById(usuario._id, usuario);
+      return true;
+    }
+    return false;
   }
 
   @get('/user/count')
