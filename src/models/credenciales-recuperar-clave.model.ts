@@ -6,7 +6,7 @@ export class CredencialesRecuperarClave extends Model {
     type: 'string',
     required: true,
   })
-  correo: string;
+  email: string;
 
 
   constructor(data?: Partial<CredencialesRecuperarClave>) {

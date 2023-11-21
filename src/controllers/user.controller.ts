@@ -299,7 +299,7 @@ export class UserController {
   ): Promise<object> {
     let user = await this.userRepository.findOne({
       where: {
-        email: credentials.correo,
+        email: credentials.email,
       },
     });
     if (user) {
