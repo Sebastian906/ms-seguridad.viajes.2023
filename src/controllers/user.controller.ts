@@ -118,7 +118,7 @@ export class UserController {
     user.hashValidacion = hash;
     user.estadoValidacion = false;
     user.aceptado = false;
-
+    user.roleId = ConfigurationSecurity.rolUsuarioPublico;
 
     //notificacion de hash en correo
     let enlace =`<a href="${ConfigurationNotifications.urlvalidacionFronted}/${hash}" target='_blank'> Validar usuario </a>`;
@@ -409,6 +409,7 @@ export class UserController {
     let user = await this.servicioSeguridad.validateCode2fa(credentials);
     if (user) {
       let token = this.servicioSeguridad.createToken(user);
+      let permission: [];
       if (user) {
         user.password = '';
         try {
@@ -429,6 +430,7 @@ export class UserController {
         return {
           user: user,
           token: token,
+          permission: []
         };
       }
     }

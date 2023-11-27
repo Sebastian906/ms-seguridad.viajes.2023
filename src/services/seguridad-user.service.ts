@@ -1,8 +1,8 @@
-import {/* inject, */ BindingScope, injectable} from '@loopback/core';
+import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ConfigurationSecurity} from '../config/seguridad.config';
-import {Credentials, FactorAuthenticationCode, User} from '../models';
-import {LoginRepository, UserRepository} from '../repositories';
+import {Credentials, FactorAuthenticationCode, RolePermissions, User} from '../models';
+import {LoginRepository, RolePermissionsRepository, UserRepository} from '../repositories';
 const generator = require('generate-password');
 const MD5 = require('crypto-js/md5');
 const jwt = require('jsonwebtoken');
@@ -13,7 +13,9 @@ export class SeguridadUserService {
     @repository(UserRepository)
     public repositoryUser: UserRepository,
     @repository(LoginRepository)
-    public repositoyryLogin: LoginRepository,
+    public repositoryLogin: LoginRepository,
+    @repository(RolePermissionsRepository)
+    public repositoryRolePermissions: RolePermissionsRepository
   ) {}
 
   /**
@@ -62,7 +64,7 @@ export class SeguridadUserService {
   async validateCode2fa(
     credential2fa: FactorAuthenticationCode,
   ): Promise<User | null> {
-    let login = await this.repositoyryLogin.findOne({
+    let login = await this.repositoryLogin.findOne({
       where: {
         userId: credential2fa.UserId,
         code2fa: credential2fa.code2fa,
@@ -99,5 +101,21 @@ export class SeguridadUserService {
   getRoleFromToken(token: string) {
     let data = jwt.verify(token, ConfigurationSecurity.claveJWT);
     return data.role;
+  }
+
+  /**
+   * Retorna los permisos del rol
+   * @param idRole id del rol a buscar y que esta asociando al usuario
+   */
+  async ConsultPermissionsByUser(idRole: string): Promise <RolePermissions[]> {
+    let permission: RolePermissions[] = await this.repositoryRolePermissions.find(
+      {
+        where: {
+          post: true,
+          roleId: idRole
+        }
+      }
+    );
+    return permission;
   }
 }

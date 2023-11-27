@@ -6,5 +6,6 @@ export namespace ConfigurationSecurity {
   export const editarAccion = 'put';
   export const eliminarAccion = 'delete';
   export const descargarAccion = 'download';
-  export const mongodbConnectionString = process.env.CONNECTION_STRING_MONGODB
+  export const mongodbConnectionString = process.env.CONNECTION_STRING_MONGODB;
+  export const rolUsuarioPublico = "";
 }
